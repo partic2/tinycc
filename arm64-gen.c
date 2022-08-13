@@ -1515,7 +1515,7 @@ ST_FUNC int gjmp_append(int n, int t)
     return t;
 }
 
-void arm64_vset_VT_CMP(int op)
+ST_FUNC void arm64_vset_VT_CMP(int op)
 {
     if (op >= TOK_ULT && op <= TOK_GT) {
         vtop->cmp_r = vtop->r;

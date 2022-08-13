@@ -788,7 +788,7 @@ found_dll:
     return s;
 }
 
-void pe_free_imports(struct pe_info *pe)
+ST_FUNC void pe_free_imports(struct pe_info *pe)
 {
     int i;
     for (i = 0; i < pe->imp_count; ++i) {

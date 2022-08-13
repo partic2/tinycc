@@ -359,7 +359,7 @@ static void gen_modrm64(int opcode, int op_reg, int r, Sym *sym, int c)
 
 
 /* load 'r' from value 'sv' */
-void load(int r, SValue *sv)
+ST_FUNC void load(int r, SValue *sv)
 {
     int v, t, ft, fc, fr;
     SValue v1;
@@ -559,7 +559,7 @@ void load(int r, SValue *sv)
 }
 
 /* store register 'r' in lvalue 'v' */
-void store(int r, SValue *v)
+ST_FUNC void store(int r, SValue *v)
 {
     int fr, bt, ft, fc;
     int op64 = 0;
@@ -810,7 +810,7 @@ static int gfunc_arg_size(CType *type) {
     return type_size(type, &align);
 }
 
-void gfunc_call(int nb_args)
+ST_FUNC void gfunc_call(int nb_args)
 {
     int size, r, args_size, i, d, bt, struct_size;
     int arg;
@@ -943,7 +943,7 @@ void gfunc_call(int nb_args)
 #define FUNC_PROLOG_SIZE 11
 
 /* generate function prolog of type 't' */
-void gfunc_prolog(Sym *func_sym)
+ST_FUNC void gfunc_prolog(Sym *func_sym)
 {
     CType *func_type = &func_sym->type;
     int addr, reg_param_index, bt, size;
@@ -1016,7 +1016,7 @@ void gfunc_prolog(Sym *func_sym)
 }
 
 /* generate function epilog */
-void gfunc_epilog(void)
+ST_FUNC void gfunc_epilog(void)
 {
     int v, saved_ind;
 
@@ -1243,7 +1243,7 @@ static int arg_prepare_reg(int idx) {
 /* Generate function call. The function address is pushed first, then
    all the parameters in call order. This functions pops all the
    parameters and the function address. */
-void gfunc_call(int nb_args)
+ST_FUNC void gfunc_call(int nb_args)
 {
     X86_64_Mode mode;
     CType type;
@@ -1459,7 +1459,7 @@ static void push_arg_reg(int i) {
 }
 
 /* generate function prolog of type 't' */
-void gfunc_prolog(Sym *func_sym)
+ST_FUNC void gfunc_prolog(Sym *func_sym)
 {
     CType *func_type = &func_sym->type;
     X86_64_Mode mode, ret_mode;
@@ -1613,7 +1613,7 @@ void gfunc_prolog(Sym *func_sym)
 }
 
 /* generate function epilog */
-void gfunc_epilog(void)
+ST_FUNC void gfunc_epilog(void)
 {
     int v, saved_ind;
 
@@ -1648,13 +1648,13 @@ ST_FUNC void gen_fill_nops(int bytes)
 }
 
 /* generate a jump to a label */
-int gjmp(int t)
+ST_FUNC int gjmp(int t)
 {
     return gjmp2(0xe9, t);
 }
 
 /* generate a jump to a fixed address */
-void gjmp_addr(int a)
+ST_FUNC void gjmp_addr(int a)
 {
     int r;
     r = a - ind - 2;
@@ -1707,7 +1707,7 @@ ST_FUNC int gjmp_cond(int op, int t)
 }
 
 /* generate an integer binary operation */
-void gen_opi(int op)
+ST_FUNC void gen_opi(int op)
 {
     int r, fr, opc, c;
     int ll, uu, cc;
@@ -1832,12 +1832,12 @@ void gen_opi(int op)
     }
 }
 
-void gen_opl(int op)
+ST_FUNC void gen_opl(int op)
 {
     gen_opi(op);
 }
 
-void vpush_const(int t, int v)
+static void vpush_const(int t, int v)
 {
     CType ctype = { t | VT_CONSTANT, 0 };
     vpushsym(&ctype, external_global_sym(v, &ctype));
@@ -1847,7 +1847,7 @@ void vpush_const(int t, int v)
 /* generate a floating point operation 'v = t1 op t2' instruction. The
    two operands are guaranteed to have the same floating point type */
 /* XXX: need to use ST1 too */
-void gen_opf(int op)
+ST_FUNC void gen_opf(int op)
 {
     int a, ft, fc, swapped, r;
     int bt = vtop->type.t & VT_BTYPE;
@@ -2067,7 +2067,7 @@ void gen_opf(int op)
 
 /* convert integers to fp 't' type. Must handle 'int', 'unsigned int'
    and 'long long' cases. */
-void gen_cvt_itof(int t)
+ST_FUNC void gen_cvt_itof(int t)
 {
     if ((t & VT_BTYPE) == VT_LDOUBLE) {
         save_reg(TREG_ST0);
@@ -2109,7 +2109,7 @@ void gen_cvt_itof(int t)
 }
 
 /* convert from one floating point type to another */
-void gen_cvt_ftof(int t)
+ST_FUNC void gen_cvt_ftof(int t)
 {
     int ft, bt, tbt;
 
@@ -2172,7 +2172,7 @@ void gen_cvt_ftof(int t)
 }
 
 /* convert fp to int 't' type */
-void gen_cvt_ftoi(int t)
+ST_FUNC void gen_cvt_ftoi(int t)
 {
     int ft, bt, size, r;
     ft = vtop->type.t;

@@ -156,7 +156,7 @@ ST_DATA const char * const target_machine_defs =
 #endif
     ;
 
-enum float_abi float_abi;
+ST_DATA enum float_abi float_abi;
 
 ST_DATA const int reg_classes[NB_REGS] = {
     /* r0 */ RC_INT | RC_R0,
@@ -238,7 +238,7 @@ static int regmask(int r) {
 /******************************************************/
 
 #if defined(TCC_ARM_EABI) && !defined(CONFIG_TCC_ELFINTERP)
-const char *default_elfinterp(struct TCCState *s)
+ST_FUNC const char *default_elfinterp(struct TCCState *s)
 {
     if (s->float_abi == ARM_HARD_FLOAT)
         return "/lib/ld-linux-armhf.so.3";
@@ -247,7 +247,7 @@ const char *default_elfinterp(struct TCCState *s)
 }
 #endif
 
-void o(uint32_t i)
+ST_FUNC void o(uint32_t i)
 {
   /* this is a good place to start adding big-endian support*/
   int ind1;
@@ -322,7 +322,7 @@ static uint32_t stuff_const(uint32_t op, uint32_t c)
 
 
 //only add,sub
-void stuff_const_harder(uint32_t op, uint32_t v) {
+static void stuff_const_harder(uint32_t op, uint32_t v) {
   uint32_t x;
   x=stuff_const(op,v);
   if(x)
@@ -378,7 +378,7 @@ void stuff_const_harder(uint32_t op, uint32_t v) {
   }
 }
 
-uint32_t encbranch(int pos, int addr, int fail)
+static uint32_t encbranch(int pos, int addr, int fail)
 {
   addr-=pos+8;
   addr/=4;
@@ -390,7 +390,7 @@ uint32_t encbranch(int pos, int addr, int fail)
   return 0x0A000000|(addr&0xffffff);
 }
 
-int decbranch(int pos)
+static int decbranch(int pos)
 {
   int x;
   x=*(uint32_t *)(cur_text_section->data + pos);
@@ -401,7 +401,7 @@ int decbranch(int pos)
 }
 
 /* output a symbol and patch all calls to it */
-void gsym_addr(int t, int a)
+ST_FUNC void gsym_addr(int t, int a)
 {
   uint32_t *x;
   int lt;
@@ -570,7 +570,7 @@ static void load_value(SValue *sv, int r)
 }
 
 /* load 'r' from value 'sv' */
-void load(int r, SValue *sv)
+ST_FUNC void load(int r, SValue *sv)
 {
   int v, ft, fc, fr, sign;
   uint32_t op;
@@ -703,7 +703,7 @@ void load(int r, SValue *sv)
 }
 
 /* store register 'r' in lvalue 'v' */
-void store(int r, SValue *sv)
+ST_FUNC void store(int r, SValue *sv)
 {
   SValue v1;
   int v, ft, fc, fr, sign;
@@ -943,7 +943,7 @@ struct avail_regs {
    avregs: opaque structure to keep track of available VFP co-processor regs
    align: alignment constraints for the param, as returned by type_size()
    size: size of the parameter, as returned by type_size() */
-int assign_vfpreg(struct avail_regs *avregs, int align, int size)
+static int assign_vfpreg(struct avail_regs *avregs, int align, int size)
 {
   int first_reg = 0;
 
@@ -971,7 +971,7 @@ int assign_vfpreg(struct avail_regs *avregs, int align, int size)
 
 /* Returns whether all params need to be passed in core registers or not.
    This is the case for function part of the runtime ABI. */
-int floats_in_core_regs(SValue *sval)
+static int floats_in_core_regs(SValue *sval)
 {
   if (!sval->sym)
     return 0;
@@ -1330,7 +1330,7 @@ again:
 /* Generate function call. The function address is pushed first, then
    all the parameters in call order. This functions pops all the
    parameters and the function address. */
-void gfunc_call(int nb_args)
+ST_FUNC void gfunc_call(int nb_args)
 {
   int r, args_size;
   int def_float_abi = float_abi;
@@ -1396,7 +1396,7 @@ void gfunc_call(int nb_args)
 }
 
 /* generate function prolog of type 't' */
-void gfunc_prolog(Sym *func_sym)
+ST_FUNC void gfunc_prolog(Sym *func_sym)
 {
   CType *func_type = &func_sym->type;
   Sym *sym,*sym2;
@@ -1505,7 +1505,7 @@ from_stack:
 }
 
 /* generate function epilog */
-void gfunc_epilog(void)
+ST_FUNC void gfunc_epilog(void)
 {
   uint32_t x;
   int diff;
@@ -1605,7 +1605,7 @@ ST_FUNC int gjmp_append(int n, int t)
 }
 
 /* generate an integer binary operation */
-void gen_opi(int op)
+ST_FUNC void gen_opi(int op)
 {
   int c, func = 0;
   uint32_t opc = 0, r, fr;
@@ -1807,7 +1807,7 @@ static int is_zero(int i)
 
 /* generate a floating point operation 'v = t1 op t2' instruction. The
  *    two operands are guaranteed to have the same floating point type */
-void gen_opf(int op)
+ST_FUNC void gen_opf(int op)
 {
   uint32_t x;
   int fneg=0,r;
@@ -1943,7 +1943,7 @@ static uint32_t is_fconst()
 
 /* generate a floating point operation 'v = t1 op t2' instruction. The
    two operands are guaranteed to have the same floating point type */
-void gen_opf(int op)
+ST_FUNC void gen_opf(int op)
 {
   uint32_t x, r, r2, c1, c2;
   //fputs("gen_opf\n",stderr);
@@ -2226,7 +2226,7 @@ ST_FUNC void gen_cvt_itof(int t)
 }
 
 /* convert fp to int 't' type */
-void gen_cvt_ftoi(int t)
+ST_FUNC void gen_cvt_ftoi(int t)
 {
   uint32_t r, r2;
   int u, func = 0;
@@ -2286,7 +2286,7 @@ void gen_cvt_ftoi(int t)
 }
 
 /* convert from one floating point type to another */
-void gen_cvt_ftof(int t)
+ST_FUNC void gen_cvt_ftof(int t)
 {
 #ifdef TCC_ARM_VFP
   if(((vtop->type.t & VT_BTYPE) == VT_FLOAT) != ((t & VT_BTYPE) == VT_FLOAT)) {
@@ -2323,7 +2323,7 @@ ST_FUNC void gen_increment_tcov (SValue *sv)
 }
 
 /* computed goto support */
-void ggoto(void)
+ST_FUNC void ggoto(void)
 {
   gcall_or_jmp(1);
   vtop--;

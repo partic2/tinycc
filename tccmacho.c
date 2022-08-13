@@ -525,7 +525,7 @@ static void create_symtab(TCCState *s1, struct macho *mo)
     }
 }
 
-const struct {
+static const struct {
     int seg;
     uint32_t flags;
     const char *name;

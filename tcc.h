@@ -1662,7 +1662,7 @@ ST_FUNC void gen_cvt_csti(int t);
 /* ------------ arm-gen.c ------------ */
 #ifdef TCC_TARGET_ARM
 #if defined(TCC_ARM_EABI) && !defined(CONFIG_TCC_ELFINTERP)
-PUB_FUNC const char *default_elfinterp(struct TCCState *s);
+ST_FUNC const char *default_elfinterp(struct TCCState *s);
 #endif
 ST_FUNC void arm_init(struct TCCState *s);
 ST_FUNC void gen_increment_tcov (SValue *sv);
